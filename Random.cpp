@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     s >> num;
 
     std::normal_distribution<float> f(0, 100);
-    std::default_random_engine test;
+    std::random_device test;
 
     for(int i = 0; i < num; i++)
         std::cout << f(test) << std::endl;
