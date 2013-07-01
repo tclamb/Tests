@@ -1,25 +1,46 @@
-#include <iostream>
-#include <random>
-#include <sstream>
+#include <cstddef>    // for std::size_t
+#include <functional> // for std::function, std::bind, std::ref
+#include <iostream>   // for std::cout, std::endl
+#include <string>     // for std::stoi
+#include <random>     // for std::random_device,
+                      //     std::uniform_real_distribution
+
+void operator*(std::size_t number, std::function<void (void)> func) {
+    for(std::size_t i = 0; i < number; ++i)
+        func();
+}
+
+inline void print_usage() {
+    std::cout << "Usage: ./Random [number]" << std::endl;
+}
 
 int main(int argc, char* argv[]) {
-    if(argc < 2) {
-        std::cout << "Enter # of Rand Nums to Generate" << std::endl;
-        return -1;
+    if(argc != 2) {
+        print_usage();
+        return 1;
     }
 
-    std::stringstream s;
-    s << argv[1];
     int num;
-    s >> num;
+    try {
+        num = std::stoi(argv[1]);
+    } catch(...) {
+        print_usage();
+        return 1;
+    }
 
-    std::normal_distribution<float> f(0, 100);
-    std::random_device test;
+    if(num < 0) {
+        print_usage();
+        return 1;
+    }
 
-    for(int i = 0; i < num; i++)
-        std::cout << f(test) << std::endl;
+    std::random_device generator;
+    auto distribution = std::uniform_real_distribution<float>{0, 1};
 
-    std::cout << std::endl;
+    auto rnd = std::bind(std::ref(distribution),
+                         std::ref(generator)
+                         ); 
+
+    num * [&rnd](){ std::cout << rnd() << std::endl; };
 
     return 0;
 }
